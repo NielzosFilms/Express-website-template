@@ -19,12 +19,15 @@
 						voluptas.
 					</p>
 				</div>
-				<% if(user) {%>
+				loop through the users and display the username
 				<div class="col-md-12">
-					<h2>User</h2>
-					<p><strong>Name:</strong> <%- user.username %></p>
+					<h2>Users</h2>
+					<ul>
+						<% for (var i = 0; i < users.length; i++) { %>
+						<li><%- users[i].username %></li>
+						<% } %>
+					</ul>
 				</div>
-				<% } %>
 			</div>
 		</main>
 		<%- include('partials/footer') %>
