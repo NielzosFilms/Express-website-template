@@ -3,15 +3,11 @@
 		<%- include('partials/head') %>
 	</head>
 	<body>
-		<div class="container">
+		<header><%- include('partials/header'); %></header>
+		<main class="container">
 			<div class="row">
 				<div class="col-md-12">
 					<h1>Express Template</h1>
-					<p>
-						<a href="/">Home</a>
-						<a href="/about">About</a>
-						<a href="/contact">Contact</a>
-					</p>
 					<hr />
 					<h2>About</h2>
 					<p>
@@ -23,8 +19,14 @@
 						voluptas.
 					</p>
 				</div>
+				<% if(user) {%>
+				<div class="col-md-12">
+					<h2>User</h2>
+					<p><strong>Name:</strong> <%- user.username %></p>
+				</div>
+				<% } %>
 			</div>
-		</div>
+		</main>
 		<%- include('partials/footer') %>
 	</body>
 </html>

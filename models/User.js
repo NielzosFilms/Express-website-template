@@ -1,23 +1,35 @@
-// a sequelize model for the User table with the following attributes: id, username, password, created_at, updated_at and deleted_at
+"use strict";
+const { Model } = require("sequelize");
+const passwordHash = require("password-hash");
 
-module.exports = function (sequelize, DataTypes) {
-	var User = sequelize.define(
-		"User",
+module.exports = (sequelize, DataTypes) => {
+	class User extends Model {
+		/**
+		 * Helper method for defining associations.
+		 * This method is not a part of Sequelize lifecycle.
+		 * The `models/index` file will call this method automatically.
+		 */
+		static associate(models) {
+			// define association here
+		}
+	}
+	User.init(
 		{
-			username: DataTypes.STRING,
-			password: DataTypes.STRING,
-			createdAt: DataTypes.DATE,
-			updatedAt: DataTypes.DATE,
-			deletedAt: DataTypes.DATE,
+			username: {
+				type: DataTypes.STRING,
+				allowNull: false,
+				unique: true,
+			},
+			password: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
 		},
 		{
-			classMethods: {
-				associate: function (models) {
-					User.hasMany(models.Post);
-				},
-			},
+			sequelize,
+			paranoid: true,
+			modelName: "User",
 		}
 	);
-
 	return User;
 };

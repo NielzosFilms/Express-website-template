@@ -12,7 +12,7 @@
 			<div class="alert alert-danger">
 				<ul>
 					<% validationErrors.forEach((error) => { %>
-					<li><%= error %></li>
+					<li><%= error.msg %></li>
 					<% }); %>
 				</ul>
 			</div>
