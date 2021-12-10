@@ -58,7 +58,7 @@ router.get("/register", (req, res) => {
 });
 
 // express register route for user with the app variable
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
 	if (
 		req.body.username === "" ||
 		req.body.password === "" ||
@@ -73,29 +73,22 @@ router.post("/register", (req, res) => {
 				validationErrors: [{ msg: "Passwords do not match" }],
 			});
 		} else {
-			models.User.findOne({
-				where: {
+			try {
+				const user = await models.User.create({
 					username: req.body.username,
-				},
-			}).then((user) => {
-				if (user) {
-					res.render("register", {
-						validationErrors: [
-							{
-								msg: "Username already exists",
-							},
-						],
-					});
-				} else {
-					models.User.create({
-						username: req.body.username,
-						password: passwordHash.generate(req.body.password),
-					}).then((user) => {
-						req.session.user = user;
-						res.redirect("/");
-					});
-				}
-			});
+					password: passwordHash.generate(req.body.password),
+				});
+				req.session.user = user;
+				res.redirect("/");
+			} catch (err) {
+				res.render("register", {
+					validationErrors: error.errors?.map((error) => {
+						return {
+							msg: error.message,
+						};
+					}),
+				});
+			}
 		}
 	}
 });
@@ -110,13 +103,13 @@ router.get("/profile", (req, res) => {
 });
 
 // express update route for user with the app variable
-router.post("/update", (req, res) => {
+router.post("/update", async (req, res) => {
 	// check if logged in
 	if (req.session.user) {
 		// check if password is empty
 		if (req.body.password === "") {
 			// update user without password
-			models.User.update(
+			await models.User.update(
 				{
 					username: req.body.username,
 				},
@@ -125,29 +118,36 @@ router.post("/update", (req, res) => {
 						id: req.session.user.id,
 					},
 				}
-			).then((user) => {
-				req.session.user.username = req.body.username;
-				res.redirect("/profile");
-			});
+			);
+			req.session.user = await models.User.findByPk(req.session.user.id);
+			res.redirect("/profile");
 		} else {
 			// update user with password
-			models.User.update(
-				{
-					username: req.body.username,
-					password: passwordHash.generate(req.body.password),
-				},
-				{
-					where: {
-						id: req.session.user.id,
+			try {
+				await models.User.update(
+					{
+						username: req.body.username,
+						password: passwordHash.generate(req.body.password),
 					},
-				}
-			).then((user) => {
-				req.session.user.username = req.body.username;
-				req.session.user.password = passwordHash.generate(
-					req.body.password
+					{
+						where: {
+							id: req.session.user.id,
+						},
+					}
+				);
+				req.session.user = await models.User.findByPk(
+					req.session.user.id
 				);
 				res.redirect("/profile");
-			});
+			} catch (err) {
+				res.render("profile", {
+					validationErrors: error.errors?.map((error) => {
+						return {
+							msg: error.message,
+						};
+					}),
+				});
+			}
 		}
 	} else {
 		res.redirect("/login");

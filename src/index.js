@@ -15,7 +15,7 @@ app.use(
 	session({
 		secret: uuidv4(),
 		saveUninitialized: true,
-		cookie: { maxAge: oneDay },
+		cookie: { maxAge: oneDay * 7 },
 		resave: false,
 	})
 );
@@ -29,13 +29,12 @@ app.use("/", userRoutes);
 // Set routes
 app.get("/", (req, res) => {
 	console.log(req.session);
+	res.render("index", { user: req.session.user });
+});
 
-	// query the database for all users with sequelize findAll method and then render the index page with the users array as a parameter to the ejs file
-	models.User.findAll().then((users) => {
-		res.render("index", { users: users });
-	});
-
-	// res.render("index", { user: req.session.user });
+// 404 route
+app.use((req, res) => {
+	res.status(404).render("404", { user: req.session.user });
 });
 
 // Start server
